@@ -50,8 +50,10 @@ function git_prompt_filter()
         for line in io.popen("git branch 2>nul"):lines() do
             local m = line:match("%* (.+)$")
             if m then
-                clink.prompt.value = "["..m.."] "..clink.prompt.value
-                break
+--                 clink.prompt.value = "\027[30;41m  "..m.."\027[31;49m\027[39;49m "..clink.prompt.value
+                clink.prompt.value = "\027[41m\027[30m  "..m.." \027[31m\027[40m"..clink.prompt.value
+-- commands would seeming hang, -- lets see if it is waiting to read extra lines...
+--                 break
             end
         end
     end
