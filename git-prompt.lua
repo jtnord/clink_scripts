@@ -1,7 +1,7 @@
 ---
  -- Checks if the specified directory is inside a git repo.
  -- Navigates subsequently up one level and tries to find specified directory
- -- @param  {string} path    Path to directory will be checked.
+ -- @param  {string} path Path to directory will be checked.
  -- @return {bool} Path to specified directory or nil if such dir not found
 
 local function isGitRepo(path)
@@ -47,19 +47,23 @@ end
 
 function git_prompt_filter()
     if isGitRepo(".") then
-        for line in io.popen("git branch 2>nul"):lines() do
+        local p = io.popenyield("cmd /d /c git branch 2>nul", "rt")
+        if p == null then
+          clink.prompt.value = "\027[41m\027[30m  ".."OH P IS NULL".." \027[31m\027[40m"..clink.prompt.value
+          return
+        end
+        for line in p:lines() do
             local m = line:match("%* (.+)$")
             if m then
 --                 clink.prompt.value = "\027[30;41m  "..m.."\027[31;49m\027[39;49m "..clink.prompt.value
                 clink.prompt.value = "\027[41m\027[30m  "..m.." \027[31m\027[40m"..clink.prompt.value
--- commands would seeming hang, -- lets see if it is waiting to read extra lines...
---                 break
+                break
             end
         end
+        p:close()
     end
     return false
 end
-
 
 
 clink.prompt.register_filter(git_prompt_filter, 50)
